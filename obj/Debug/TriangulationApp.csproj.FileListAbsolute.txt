@@ -1,0 +1,15 @@
+C:\Users\prdb\Desktop\TriangulationApp\obj\Debug\TriangulationApp.csproj.AssemblyReference.cache
+C:\Users\prdb\Desktop\TriangulationApp\obj\Debug\MainWindow.g.cs
+C:\Users\prdb\Desktop\TriangulationApp\obj\Debug\App.g.cs
+C:\Users\prdb\Desktop\TriangulationApp\obj\Debug\TriangulationApp_MarkupCompile.cache
+C:\Users\prdb\Desktop\TriangulationApp\obj\Debug\TriangulationApp_MarkupCompile.lref
+C:\Users\prdb\Desktop\TriangulationApp\bin\Debug\TriangulationApp.exe.config
+C:\Users\prdb\Desktop\TriangulationApp\bin\Debug\TriangulationApp.exe
+C:\Users\prdb\Desktop\TriangulationApp\bin\Debug\TriangulationApp.pdb
+C:\Users\prdb\Desktop\TriangulationApp\obj\Debug\MainWindow.baml
+C:\Users\prdb\Desktop\TriangulationApp\obj\Debug\TriangulationApp.g.resources
+C:\Users\prdb\Desktop\TriangulationApp\obj\Debug\TriangulationApp.Properties.Resources.resources
+C:\Users\prdb\Desktop\TriangulationApp\obj\Debug\TriangulationApp.csproj.GenerateResource.cache
+C:\Users\prdb\Desktop\TriangulationApp\obj\Debug\TriangulationApp.csproj.CoreCompileInputs.cache
+C:\Users\prdb\Desktop\TriangulationApp\obj\Debug\TriangulationApp.exe
+C:\Users\prdb\Desktop\TriangulationApp\obj\Debug\TriangulationApp.pdb
