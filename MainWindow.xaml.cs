@@ -62,6 +62,22 @@ namespace TriangulationApp
                     new Point(station2Coords.x, station2Coords.y),
                     new Point(station3Coords.x, station3Coords.y)
                 };
+                // Получение расстояний
+                double r1 = double.Parse(Distance1.Text.Trim());
+                double r2 = double.Parse(Distance2.Text.Trim());
+                double r3 = double.Parse(Distance3.Text.Trim());
+
+                // Вычисление координат объекта
+                var (objectX, objectY) = CalculateObjectPosition(
+                    station1Coords.x, station1Coords.y, r1,
+                    station2Coords.x, station2Coords.y, r2,
+                    station3Coords.x, station3Coords.y, r3
+                );
+                if (IsPointInsideTriangle(objectX, objectY, station1Coords, station2Coords, station3Coords))
+                {
+                    UpdateStationPosition(ObjectPoint, (objectX, objectY));
+                    
+                }
             }
             catch
             {

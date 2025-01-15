@@ -40,9 +40,9 @@
                 <!-- Ввод расстояний -->
                 <StackPanel Orientation="Vertical" Margin="5">
                     <TextBlock Text="Расстояния (R1, R2, R3):" />
-                    <TextBox x:Name="Distance1" Width="100" />
-                    <TextBox x:Name="Distance2" Width="100" />
-                    <TextBox x:Name="Distance3" Width="100" />
+                    <TextBox TextChanged="StationCoords_TextChanged" x:Name="Distance1" Width="100" />
+                    <TextBox TextChanged="StationCoords_TextChanged" x:Name="Distance2" Width="100" />
+                    <TextBox TextChanged="StationCoords_TextChanged" x:Name="Distance3" Width="100" />
                 </StackPanel>
             </StackPanel>
 
