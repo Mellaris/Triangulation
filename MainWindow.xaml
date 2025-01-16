@@ -5,64 +5,42 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TriangulationApp"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1000" Width="1200">
+        Title="MainWindow" Height="1000" Width="1500">
     <Grid>
-        <!-- Основной макет -->
+        <!-- Разделение окна на две части -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <!-- Панель управления -->
+            <!-- Верхняя часть для ввода данных -->
             <RowDefinition Height="*" />
-            <!-- Холст с точками -->
+            <!-- Нижняя часть для карты -->
         </Grid.RowDefinitions>
 
-        <!-- Панель управления -->
-        <Grid Background="LightGray"  Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <!-- Ввод координат и расстояний -->
-            <StackPanel Orientation="Horizontal">
-                <!-- Ввод координат станций -->
-                <StackPanel Orientation="Vertical" Margin="5">
-                    <TextBlock Text="Станция 1 (X, Y):" />
-                    <TextBox x:Name="Station1Coords" Width="100" TextChanged="StationCoords_TextChanged" />
-                </StackPanel>
-                <StackPanel Orientation="Vertical" Margin="5">
-                    <TextBlock Text="Станция 2 (X, Y):" />
-                    <TextBox x:Name="Station2Coords" Width="100" TextChanged="StationCoords_TextChanged" />
-                </StackPanel>
-                <StackPanel Orientation="Vertical" Margin="5">
-                    <TextBlock Text="Станция 3 (X, Y):" />
-                    <TextBox x:Name="Station3Coords" Width="100" TextChanged="StationCoords_TextChanged" />
-                </StackPanel>
-                <!-- Ввод расстояний -->
-                <StackPanel Orientation="Vertical" Margin="5">
-                    <TextBlock Text="Расстояния (R1, R2, R3):" />
-                    <TextBox TextChanged="StationCoords_TextChanged" x:Name="Distance1" Width="100" />
-                    <TextBox TextChanged="StationCoords_TextChanged" x:Name="Distance2" Width="100" />
-                    <TextBox TextChanged="StationCoords_TextChanged" x:Name="Distance3" Width="100" />
-                </StackPanel>
+        <!-- Верхняя панель управления -->
+        <StackPanel Orientation="Vertical" Margin="10" Grid.Row="0">
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text="Координаты станций:" VerticalAlignment="Center" />
+                <TextBox x:Name="Station1Coords" Width="80" Margin="5" TextChanged="UpdateVisualization" />
+                <TextBox x:Name="Station2Coords" Width="80" Margin="5" TextChanged="UpdateVisualization" />
+                <TextBox x:Name="Station3Coords" Width="80" Margin="5" TextChanged="UpdateVisualization" />
             </StackPanel>
-
-            <!-- Кнопка и результат -->
-            <StackPanel Orientation="Horizontal" Grid.Column="1" Margin="10,0,0,0">
-                <Button x:Name="RecalculateButton" Content="Пересчитать" Click="RecalculateButton_Click" Margin="0,0,10,0" />
-                <TextBlock Width="500" x:Name="ResultText" Text="Координаты объекта:" FontSize="14" VerticalAlignment="Center" />
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text="Расстояния до красной точки:" VerticalAlignment="Center" />
+                <TextBox x:Name="Distance1" Width="50" Margin="5" TextChanged="UpdateVisualization" />
+                <TextBox x:Name="Distance2" Width="50" Margin="5" TextChanged="UpdateVisualization" />
+                <TextBox x:Name="Distance3" Width="50" Margin="5" TextChanged="UpdateVisualization" />
             </StackPanel>
-        </Grid>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text="Радиусы действия станций:" VerticalAlignment="Center" />
+                <TextBox x:Name="Radius1" Width="50" Margin="5" TextChanged="UpdateVisualization" />
+                <TextBox x:Name="Radius2" Width="50" Margin="5" TextChanged="UpdateVisualization" />
+                <TextBox x:Name="Radius3" Width="50" Margin="5" TextChanged="UpdateVisualization" />
+            </StackPanel>
+            <TextBlock x:Name="ResultText" Margin="5" Foreground="Red" />
+        </StackPanel>
 
-        <!-- Холст для отображения треугольника и точек -->
-        <Canvas x:Name="MapCanvas" Background="White" Grid.Row="1">
-            <!-- Станции -->
-            <Ellipse x:Name="Station1" Width="10" Height="10" Fill="Yellow" />
-            <Ellipse x:Name="Station2" Width="10" Height="10" Fill="Blue" />
-            <Ellipse x:Name="Station3" Width="10" Height="10" Fill="Black" />
-            <!-- Треугольник -->
-            <Polygon x:Name="Triangle" Stroke="Black" StrokeThickness="2" Fill="LightBlue" Opacity="0.5" />
-            <!-- Красная точка -->
-            <Ellipse x:Name="ObjectPoint" Width="10" Height="10" Fill="Red" />
+        <!-- Нижняя часть с картой -->
+        <Canvas x:Name="MapCanvas" Background="White" Width="1000" Grid.Row="1">
+            <!-- Элементы карты будут добавлены программно -->
         </Canvas>
     </Grid>
 </Window>
