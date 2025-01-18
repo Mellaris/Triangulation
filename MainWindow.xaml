@@ -5,42 +5,32 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TriangulationApp"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1000" Width="1500">
+        Title="MainWindow" Height="600" Width="800" WindowStartupLocation="CenterScreen">
     <Grid>
-        <!-- Разделение окна на две части -->
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <!-- Верхняя часть для ввода данных -->
-            <RowDefinition Height="*" />
-            <!-- Нижняя часть для карты -->
-        </Grid.RowDefinitions>
+        <!-- Верхнее меню -->
+        <Menu VerticalAlignment="Top" Height="30" Background="LightGray">
+            <MenuItem Header="Координаты и радиусы">
+                <MenuItem Header="Вышка 1: Координаты: (0, 0), Радиус: 100" Name="Tower1Menu" />
+                <MenuItem Header="Вышка 2: Координаты: (0, 0), Радиус: 100" Name="Tower2Menu" />
+                <MenuItem Header="Вышка 3: Координаты: (0, 0), Радиус: 100" Name="Tower3Menu" />
+                <MenuItem Header="Координаты объекта: невозможно рассчитать" Name="CoordinatesMenu" />
+            </MenuItem>
+        </Menu>
 
-        <!-- Верхняя панель управления -->
-        <StackPanel Orientation="Vertical" Margin="10" Grid.Row="0">
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <TextBlock Text="Координаты станций:" VerticalAlignment="Center" />
-                <TextBox x:Name="Station1Coords" Width="80" Margin="5" TextChanged="UpdateVisualization" />
-                <TextBox x:Name="Station2Coords" Width="80" Margin="5" TextChanged="UpdateVisualization" />
-                <TextBox x:Name="Station3Coords" Width="80" Margin="5" TextChanged="UpdateVisualization" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <TextBlock Text="Расстояния до красной точки:" VerticalAlignment="Center" />
-                <TextBox x:Name="Distance1" Width="50" Margin="5" TextChanged="UpdateVisualization" />
-                <TextBox x:Name="Distance2" Width="50" Margin="5" TextChanged="UpdateVisualization" />
-                <TextBox x:Name="Distance3" Width="50" Margin="5" TextChanged="UpdateVisualization" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <TextBlock Text="Радиусы действия станций:" VerticalAlignment="Center" />
-                <TextBox x:Name="Radius1" Width="50" Margin="5" TextChanged="UpdateVisualization" />
-                <TextBox x:Name="Radius2" Width="50" Margin="5" TextChanged="UpdateVisualization" />
-                <TextBox x:Name="Radius3" Width="50" Margin="5" TextChanged="UpdateVisualization" />
-            </StackPanel>
-            <TextBlock x:Name="ResultText" Margin="5" Foreground="Red" />
-        </StackPanel>
+        <!-- Карта -->
+        <Canvas Name="MapCanvas" Background="White" Margin="0,30,0,0">
+            <!-- Радиусы вышек -->
+            <Ellipse Name="Radius1" Width="200" Height="200" Fill="LightGreen" Opacity="0.3" />
+            <Ellipse Name="Radius2" Width="200" Height="200" Fill="LightBlue" Opacity="0.3" />
+            <Ellipse Name="Radius3" Width="200" Height="200" Fill="Pink" Opacity="0.3" />
 
-        <!-- Нижняя часть с картой -->
-        <Canvas x:Name="MapCanvas" Background="White" Width="1000" Grid.Row="1">
-            <!-- Элементы карты будут добавлены программно -->
+            <!-- Вышки -->
+            <Ellipse Name="Tower1" Width="20" Height="20" Fill="Black" />
+            <Ellipse Name="Tower2" Width="20" Height="20" Fill="Black" />
+            <Ellipse Name="Tower3" Width="20" Height="20" Fill="Black" />
+
+            <!-- Красная точка -->
+            <Ellipse Name="ObjectPoint" Width="15" Height="15" Fill="Red" />
         </Canvas>
     </Grid>
 </Window>
