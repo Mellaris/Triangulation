@@ -20,59 +20,41 @@ namespace TriangulationApp
     /// </summary>
     public partial class MainWindow : Window
     {
-        private bool isDraggingRedPoint = false; // Для перемещения красной точки
-        private Point dragStartPoint;
+        private double tower1Radius = 100, tower2Radius = 100, tower3Radius = 100;
 
         public MainWindow()
         {
             InitializeComponent();
-            InitializeEvents();
-            InitializeDefaultPositions();
+            InitializeObjects();
         }
 
-        private void InitializeEvents()
+        private void InitializeObjects()
         {
-            // События для вышек
+            // Устанавливаем начальные координаты
+            SetTowerPosition(Tower1, Radius1, 100, 100, tower1Radius);
+            SetTowerPosition(Tower2, Radius2, 300, 100, tower2Radius);
+            SetTowerPosition(Tower3, Radius3, 200, 300, tower3Radius);
+            SetObjectPosition(ObjectPoint, 200, 200);
+
+            // Добавляем обработчики событий
             Tower1.MouseMove += Tower_MouseMove;
             Tower2.MouseMove += Tower_MouseMove;
             Tower3.MouseMove += Tower_MouseMove;
-
-            // События для красной точки
-            ObjectPoint.MouseLeftButtonDown += RedPoint_MouseDown;
-            ObjectPoint.MouseLeftButtonUp += RedPoint_MouseUp;
-            ObjectPoint.MouseMove += RedPoint_MouseMove;
+            ObjectPoint.MouseMove += Object_MouseMove;
         }
 
-        private void InitializeDefaultPositions()
+        private void SetTowerPosition(Ellipse tower, Ellipse radius, double x, double y, double r)
         {
-            // Установка начальных позиций для вышек и радиусов
-            SetPosition(Tower1, 100, 100);
-            SetPosition(Tower2, 300, 100);
-            SetPosition(Tower3, 200, 300);
-
-            SetRadius(Radius1, Tower1, 100);
-            SetRadius(Radius2, Tower2, 100);
-            SetRadius(Radius3, Tower3, 100);
-
-            // Установка начальной позиции красной точки
-            SetPosition(ObjectPoint, 200, 200);
-
-            // Обновление меню
-            UpdateMenu();
+            Canvas.SetLeft(tower, x - tower.Width / 2);
+            Canvas.SetTop(tower, y - tower.Height / 2);
+            Canvas.SetLeft(radius, x - r);
+            Canvas.SetTop(radius, y - r);
+            radius.Width = radius.Height = r * 2;
         }
-
-        private void SetPosition(UIElement element, double x, double y)
+        private void SetObjectPosition(Ellipse obj, double x, double y)
         {
-            Canvas.SetLeft(element, x - element.RenderSize.Width / 2);
-            Canvas.SetTop(element, y - element.RenderSize.Height / 2);
-        }
-
-        private void SetRadius(Ellipse radius, Ellipse tower, double value)
-        {
-            radius.Width = value * 2;
-            radius.Height = value * 2;
-            Canvas.SetLeft(radius, Canvas.GetLeft(tower) - value + tower.Width / 2);
-            Canvas.SetTop(radius, Canvas.GetTop(tower) - value + tower.Height / 2);
+            Canvas.SetLeft(obj, x - obj.Width / 2);
+            Canvas.SetTop(obj, y - obj.Height / 2);
         }
 
         private void Tower_MouseMove(object sender, MouseEventArgs e)
@@ -80,118 +62,98 @@ namespace TriangulationApp
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 var tower = sender as Ellipse;
-                var position = e.GetPosition(MapCanvas);
-
-                // Установка новых координат вышки
-                SetPosition(tower, position.X, position.Y);
-
-                // Обновление радиуса
-                Ellipse radius = GetAssociatedRadius(tower);
-                SetRadius(radius, tower, radius.Width / 2);
-
-                // Проверка положения красной точки
+                var pos = e.GetPosition(MapCanvas);
+                var radius = tower == Tower1 ? Radius1 : tower == Tower2 ? Radius2 : Radius3;
+                SetTowerPosition(tower, radius, pos.X, pos.Y, GetRadiusForTower(tower));
                 UpdateObjectCoordinates();
                 UpdateMenu();
             }
         }
 
-        private Ellipse GetAssociatedRadius(Ellipse tower)
+        private void Object_MouseMove(object sender, MouseEventArgs e)
         {
-            if (tower == Tower1) return Radius1;
-            if (tower == Tower2) return Radius2;
-            return Radius3;
-        }
-
-        private void RedPoint_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            isDraggingRedPoint = true;
-            dragStartPoint = e.GetPosition(MapCanvas);
-            ObjectPoint.CaptureMouse();
-        }
-
-        private void RedPoint_MouseUp(object sender, MouseEventArgs e)
-        {
-            isDraggingRedPoint = false;
-            ObjectPoint.ReleaseMouseCapture();
-            UpdateObjectCoordinates();
-            UpdateMenu();
-        }
-
-        private void RedPoint_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (isDraggingRedPoint)
+            if (e.LeftButton == MouseButtonState.Pressed)
             {
-                var position = e.GetPosition(MapCanvas);
+                var pos = e.GetPosition(MapCanvas);
+                SetObjectPosition(ObjectPoint, pos.X, pos.Y);
+                UpdateObjectCoordinates();
+                UpdateMenu();
+            }
+        }
 
-                // Перемещение красной точки
-                SetPosition(ObjectPoint, position.X, position.Y);
+        private double GetRadiusForTower(Ellipse tower)
+        {
+            return tower == Tower1 ? tower1Radius : tower == Tower2 ? tower2Radius : tower3Radius;
+        }
+
+        private void RadiusInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                double newRadius;
+
+                if (!double.TryParse(textBox.Text, out newRadius) || newRadius < 0)
+                {
+                    textBox.Background = Brushes.LightCoral;
+                    return;
+                }
+
+                textBox.Background = Brushes.White;
+
+                if (textBox.Name == "Radius1Input")
+                {
+                    tower1Radius = newRadius;
+                    SetTowerPosition(Tower1, Radius1, Canvas.GetLeft(Tower1) + Tower1.Width / 2, Canvas.GetTop(Tower1) + Tower1.Height / 2, newRadius);
+                }
+                else if (textBox.Name == "Radius2Input")
+                {
+                    tower2Radius = newRadius;
+                    SetTowerPosition(Tower2, Radius2, Canvas.GetLeft(Tower2) + Tower2.Width / 2, Canvas.GetTop(Tower2) + Tower2.Height / 2, newRadius);
+                }
+                else if (textBox.Name == "Radius3Input")
+                {
+                    tower3Radius = newRadius;
+                    SetTowerPosition(Tower3, Radius3, Canvas.GetLeft(Tower3) + Tower3.Width / 2, Canvas.GetTop(Tower3) + Tower3.Height / 2, newRadius);
+                }
+
+                UpdateObjectCoordinates();
+                UpdateMenu();
             }
         }
 
         private void UpdateObjectCoordinates()
         {
-            var redPoint = GetTowerCenter(ObjectPoint);
-            var t1 = GetTowerCenter(Tower1);
-            var t2 = GetTowerCenter(Tower2);
-            var t3 = GetTowerCenter(Tower3);
-            double r1 = Radius1.Width / 2;
-            double r2 = Radius2.Width / 2;
-            double r3 = Radius3.Width / 2;
+            double x1 = Canvas.GetLeft(Tower1) + Tower1.Width / 2;
+            double y1 = Canvas.GetTop(Tower1) + Tower1.Height / 2;
+            double x2 = Canvas.GetLeft(Tower2) + Tower2.Width / 2;
+            double y2 = Canvas.GetTop(Tower2) + Tower2.Height / 2;
+            double x3 = Canvas.GetLeft(Tower3) + Tower3.Width / 2;
+            double y3 = Canvas.GetTop(Tower3) + Tower3.Height / 2;
 
-            bool isInside =
-                IsPointInsideCircle(redPoint, t1, r1) &&
-                IsPointInsideCircle(redPoint, t2, r2) &&
-                IsPointInsideCircle(redPoint, t3, r3);
+            double objX = Canvas.GetLeft(ObjectPoint) + ObjectPoint.Width / 2;
+            double objY = Canvas.GetTop(ObjectPoint) + ObjectPoint.Height / 2;
 
-            if (isInside)
+            if (IsPointInsideCircle(objX, objY, x1, y1, tower1Radius) &&
+                IsPointInsideCircle(objX, objY, x2, y2, tower2Radius) &&
+                IsPointInsideCircle(objX, objY, x3, y3, tower3Radius))
             {
-                double calculatedX = CalculateWeightedX(t1, r1, t2, r2, t3, r3);
-                double calculatedY = CalculateWeightedY(t1, r1, t2, r2, t3, r3);
-                CoordinatesMenu.Header = $"Координаты объекта: ({calculatedX:F2}, {calculatedY:F2})";
+                CoordinatesMenu.Header = $"Координаты объекта: ({objX:F2}, {objY:F2})";
             }
             else
             {
-                CoordinatesMenu.Header = "Координаты объекта: невозможно рассчитать";
+                CoordinatesMenu.Header = "Координаты объекта: Невозможно определить";
             }
         }
 
-        private double CalculateWeightedX(Point t1, double r1, Point t2, double r2, Point t3, double r3)
+        private bool IsPointInsideCircle(double x, double y, double cx, double cy, double r)
         {
-            return (t1.X * r1 + t2.X * r2 + t3.X * r3) / (r1 + r2 + r3);
+            return Math.Pow(x - cx, 2) + Math.Pow(y - cy, 2) <= Math.Pow(r, 2);
         }
-
-        private double CalculateWeightedY(Point t1, double r1, Point t2, double r2, Point t3, double r3)
-        {
-            return (t1.Y * r1 + t2.Y * r2 + t3.Y * r3) / (r1 + r2 + r3);
-        }
-
-        private bool IsPointInsideCircle(Point point, Point center, double radius)
-        {
-            double distanceSquared = Math.Pow(point.X - center.X, 2) + Math.Pow(point.Y - center.Y, 2);
-            return distanceSquared <= radius * radius;
-        }
-
-        private Point GetTowerCenter(UIElement element)
-        {
-            return new Point(
-                Canvas.GetLeft(element) + element.RenderSize.Width / 2,
-                Canvas.GetTop(element) + element.RenderSize.Height / 2
-            );
-        }
-
         private void UpdateMenu()
         {
-            // Обновление координат и радиусов вышек
-            UpdateTowerMenu(Tower1, Radius1, Tower1Menu);
-            UpdateTowerMenu(Tower2, Radius2, Tower2Menu);
-            UpdateTowerMenu(Tower3, Radius3, Tower3Menu);
-        }
-
-        private void UpdateTowerMenu(Ellipse tower, Ellipse radius, MenuItem menuItem)
-        {
-            var center = GetTowerCenter(tower);
-            double radiusValue = radius.Width / 2;
-            menuItem.Header = $"Координаты: ({center.X:F2}, {center.Y:F2}), Радиус: {radiusValue:F2}";
+            Tower1Menu.Header = $"Вышка 1: Радиус = {tower1Radius}, Координаты = ({Canvas.GetLeft(Tower1) + Tower1.Width / 2:F2}, {Canvas.GetTop(Tower1) + Tower1.Height / 2:F2})";
+            Tower2Menu.Header = $"Вышка 2: Радиус = {tower2Radius}, Координаты = ({Canvas.GetLeft(Tower2) + Tower2.Width / 2:F2}, {Canvas.GetTop(Tower2) + Tower2.Height / 2:F2})";
+            Tower3Menu.Header = $"Вышка 3: Радиус = {tower3Radius}, Координаты = ({Canvas.GetLeft(Tower3) + Tower3.Width / 2:F2}, {Canvas.GetTop(Tower3) + Tower3.Height / 2:F2})";
         }
     }
 }
