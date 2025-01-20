@@ -20,7 +20,7 @@ namespace TriangulationApp
     /// </summary>
     public partial class MainWindow : Window
     {
-        private bool isDraggingRedPoint = false; // Перемещение красной точки
+        private bool isDraggingRedPoint = false; // Для перемещения красной точки
         private Point dragStartPoint;
 
         public MainWindow()
@@ -91,6 +91,7 @@ namespace TriangulationApp
 
                 // Проверка положения красной точки
                 UpdateObjectCoordinates();
+                UpdateMenu();
             }
         }
 
@@ -113,6 +114,7 @@ namespace TriangulationApp
             isDraggingRedPoint = false;
             ObjectPoint.ReleaseMouseCapture();
             UpdateObjectCoordinates();
+            UpdateMenu();
         }
 
         private void RedPoint_MouseMove(object sender, MouseEventArgs e)
@@ -128,20 +130,14 @@ namespace TriangulationApp
 
         private void UpdateObjectCoordinates()
         {
-            // Координаты вышек
+            var redPoint = GetTowerCenter(ObjectPoint);
             var t1 = GetTowerCenter(Tower1);
             var t2 = GetTowerCenter(Tower2);
             var t3 = GetTowerCenter(Tower3);
+            double r1 = Radius1.Width / 2;
+            double r2 = Radius2.Width / 2;
+            double r3 = Radius3.Width / 2;
 
-            // Радиусы
-            var r1 = Radius1.Width / 2;
-            var r2 = Radius2.Width / 2;
-            var r3 = Radius3.Width / 2;
-
-            // Координаты красной точки
-            var redPoint = GetTowerCenter(ObjectPoint);
-
-            // Проверка, находится ли точка внутри всех окружностей
             bool isInside =
                 IsPointInsideCircle(redPoint, t1, r1) &&
                 IsPointInsideCircle(redPoint, t2, r2) &&
@@ -149,14 +145,24 @@ namespace TriangulationApp
 
             if (isInside)
             {
-                CoordinatesMenu.Header = $"Координаты объекта: ({redPoint.X:F2}, {redPoint.Y:F2})";
+                double calculatedX = CalculateWeightedX(t1, r1, t2, r2, t3, r3);
+                double calculatedY = CalculateWeightedY(t1, r1, t2, r2, t3, r3);
+                CoordinatesMenu.Header = $"Координаты объекта: ({calculatedX:F2}, {calculatedY:F2})";
             }
             else
             {
                 CoordinatesMenu.Header = "Координаты объекта: невозможно рассчитать";
             }
+        }
 
-            UpdateMenu();
+        private double CalculateWeightedX(Point t1, double r1, Point t2, double r2, Point t3, double r3)
+        {
+            return (t1.X * r1 + t2.X * r2 + t3.X * r3) / (r1 + r2 + r3);
+        }
+
+        private double CalculateWeightedY(Point t1, double r1, Point t2, double r2, Point t3, double r3)
+        {
+            return (t1.Y * r1 + t2.Y * r2 + t3.Y * r3) / (r1 + r2 + r3);
         }
 
         private bool IsPointInsideCircle(Point point, Point center, double radius)
@@ -175,9 +181,17 @@ namespace TriangulationApp
 
         private void UpdateMenu()
         {
-            Tower1Menu.Header = $"Вышка 1: Координаты: ({GetTowerCenter(Tower1).X:F2}, {GetTowerCenter(Tower1).Y:F2}), Радиус: {Radius1.Width / 2:F2}";
-            Tower2Menu.Header = $"Вышка 2: Координаты: ({GetTowerCenter(Tower2).X:F2}, {GetTowerCenter(Tower2).Y:F2}), Радиус: {Radius2.Width / 2:F2}";
-            Tower3Menu.Header = $"Вышка 3: Координаты: ({GetTowerCenter(Tower3).X:F2}, {GetTowerCenter(Tower3).Y:F2}), Радиус: {Radius3.Width / 2:F2}";
+            // Обновление координат и радиусов вышек
+            UpdateTowerMenu(Tower1, Radius1, Tower1Menu);
+            UpdateTowerMenu(Tower2, Radius2, Tower2Menu);
+            UpdateTowerMenu(Tower3, Radius3, Tower3Menu);
+        }
+
+        private void UpdateTowerMenu(Ellipse tower, Ellipse radius, MenuItem menuItem)
+        {
+            var center = GetTowerCenter(tower);
+            double radiusValue = radius.Width / 2;
+            menuItem.Header = $"Координаты: ({center.X:F2}, {center.Y:F2}), Радиус: {radiusValue:F2}";
         }
     }
 }
