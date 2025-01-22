@@ -6,38 +6,36 @@
         xmlns:local="clr-namespace:TriangulationApp"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800" >
-    <DockPanel>
+    <Grid>
         <!-- Верхнее меню -->
-        <Menu DockPanel.Dock="Top">
-            <MenuItem Header="Вышка 1" x:Name="Tower1Menu">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Радиус: " VerticalAlignment="Center" />
-                    <TextBox Width="50" Name="Radius1Input" TextChanged="RadiusInput_TextChanged" />
-                </StackPanel>
-            </MenuItem>
-            <MenuItem Header="Вышка 2" x:Name="Tower2Menu">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Радиус: " VerticalAlignment="Center" />
-                    <TextBox Width="50" Name="Radius2Input" TextChanged="RadiusInput_TextChanged" />
-                </StackPanel>
-            </MenuItem>
-            <MenuItem Header="Вышка 3" x:Name="Tower3Menu">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Радиус: " VerticalAlignment="Center" />
-                    <TextBox Width="50" Name="Radius3Input" TextChanged="RadiusInput_TextChanged" />
-                </StackPanel>
-            </MenuItem>
-            <MenuItem Header="Координаты объекта" x:Name="CoordinatesMenu" />
+        <Menu VerticalAlignment="Top" Height="30">
+            <MenuItem x:Name="Tower1Menu" Header="Вышка 1" />
+            <MenuItem x:Name="Tower2Menu" Header="Вышка 2" />
+            <MenuItem x:Name="Tower3Menu" Header="Вышка 3" />
+            <MenuItem x:Name="CoordinatesMenu" Header="Координаты объекта: Не определено" />
         </Menu>
-        <!-- Карта -->
-        <Canvas x:Name="MapCanvas" Background="LightGray" >
-            <Ellipse x:Name="Radius1" Stroke="Black" StrokeDashArray="5 2" StrokeThickness="1" />
-            <Ellipse x:Name="Radius2" Stroke="Black" StrokeDashArray="5 2" StrokeThickness="1" />
-            <Ellipse x:Name="Radius3" Stroke="Black" StrokeDashArray="5 2" StrokeThickness="1" />
-            <Ellipse x:Name="Tower1" Fill="Black" Width="10" Height="10" />
-            <Ellipse x:Name="Tower2" Fill="Black" Width="10" Height="10" />
-            <Ellipse x:Name="Tower3" Fill="Black" Width="10" Height="10" />
-            <Ellipse x:Name="ObjectPoint" Fill="Red" Width="10" Height="10" />
+
+        <!-- Поле карты -->
+        <Canvas Background="LightGray" Margin="10,40,10,10">
+            <!-- Черные точки (вышки) -->
+            <Ellipse x:Name="Tower1" Fill="Black" Width="20" Height="20" Canvas.Left="150" Canvas.Top="200" />
+            <Ellipse x:Name="Tower2" Fill="Black" Width="20" Height="20" Canvas.Left="350" Canvas.Top="300" />
+            <Ellipse x:Name="Tower3" Fill="Black" Width="20" Height="20" Canvas.Left="250" Canvas.Top="100" />
+
+            <!-- Радиусы -->
+            <Ellipse x:Name="Radius1" Stroke="Black" StrokeDashArray="4" StrokeThickness="1" />
+            <Ellipse x:Name="Radius2" Stroke="Black" StrokeDashArray="4" StrokeThickness="1" />
+            <Ellipse x:Name="Radius3" Stroke="Black" StrokeDashArray="4" StrokeThickness="1" />
+
+            <!-- Красная точка -->
+            <Ellipse x:Name="ObjectPoint" Fill="Red" Width="15" Height="15" Canvas.Left="250" Canvas.Top="200" />
         </Canvas>
-    </DockPanel>
+
+        <!-- Поля ввода для радиусов -->
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="10" Background="White">
+            <TextBox x:Name="Radius1Input" Width="100" Margin="5" Text="100" />
+            <TextBox x:Name="Radius2Input" Width="100" Margin="5" Text="100" />
+            <TextBox x:Name="Radius3Input" Width="100" Margin="5" Text="100" />
+        </StackPanel>
+    </Grid>
 </Window>
