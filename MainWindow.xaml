@@ -7,35 +7,22 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800" >
     <Grid>
-        <!-- Верхнее меню -->
-        <Menu VerticalAlignment="Top" Height="30">
-            <MenuItem x:Name="Tower1Menu" Header="Вышка 1" />
-            <MenuItem x:Name="Tower2Menu" Header="Вышка 2" />
-            <MenuItem x:Name="Tower3Menu" Header="Вышка 3" />
-            <MenuItem x:Name="CoordinatesMenu" Header="Координаты объекта: Не определено" />
-        </Menu>
-
-        <!-- Поле карты -->
-        <Canvas Background="LightGray" Margin="10,40,10,10">
-            <!-- Черные точки (вышки) -->
-            <Ellipse x:Name="Tower1" Fill="Black" Width="20" Height="20" Canvas.Left="150" Canvas.Top="200" />
-            <Ellipse x:Name="Tower2" Fill="Black" Width="20" Height="20" Canvas.Left="350" Canvas.Top="300" />
-            <Ellipse x:Name="Tower3" Fill="Black" Width="20" Height="20" Canvas.Left="250" Canvas.Top="100" />
-
-            <!-- Радиусы -->
-            <Ellipse x:Name="Radius1" Stroke="Black" StrokeDashArray="4" StrokeThickness="1" />
-            <Ellipse x:Name="Radius2" Stroke="Black" StrokeDashArray="4" StrokeThickness="1" />
-            <Ellipse x:Name="Radius3" Stroke="Black" StrokeDashArray="4" StrokeThickness="1" />
-
+        <!-- Основное пространство для отображения -->
+        <Canvas Name="MainCanvas" Background="White" ClipToBounds="True">
             <!-- Красная точка -->
-            <Ellipse x:Name="ObjectPoint" Fill="Red" Width="15" Height="15" Canvas.Left="250" Canvas.Top="200" />
+            <Ellipse Name="ObjectPoint" Width="15" Height="15" Fill="Red" Canvas.Left="300" Canvas.Top="300" />
         </Canvas>
 
-        <!-- Поля ввода для радиусов -->
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="10" Background="White">
-            <TextBox x:Name="Radius1Input" Width="100" Margin="5" Text="100" />
-            <TextBox x:Name="Radius2Input" Width="100" Margin="5" Text="100" />
-            <TextBox x:Name="Radius3Input" Width="100" Margin="5" Text="100" />
+        <!-- Панель управления -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Height="100">
+            <Button Name="AddTowerButton" Content="Добавить вышку" Width="150" Margin="10" Click="AddTowerButton_Click" />
         </StackPanel>
+
+        <!-- Меню для вывода координат -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Информация">
+                <MenuItem Name="CoordinatesMenu" Header="Координаты объекта: Не определены" />
+            </MenuItem>
+        </Menu>
     </Grid>
 </Window>

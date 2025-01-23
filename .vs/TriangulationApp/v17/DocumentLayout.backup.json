@@ -11,6 +11,14 @@
       "RelativeMoniker": "D:0:0:{00507228-8D95-4AAB-9396-D8BA166798DC}|TriangulationApp.csproj|solutionrelative:mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{00507228-8D95-4AAB-9396-D8BA166798DC}|TriangulationApp.csproj|C:\\Users\\Notebook\\Desktop\\Project\\Triangulation\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{00507228-8D95-4AAB-9396-D8BA166798DC}|TriangulationApp.csproj|solutionrelative:app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00507228-8D95-4AAB-9396-D8BA166798DC}|TriangulationApp.csproj|C:\\Users\\Notebook\\Desktop\\Project\\Triangulation\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{00507228-8D95-4AAB-9396-D8BA166798DC}|TriangulationApp.csproj|solutionrelative:app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{00507228-8D95-4AAB-9396-D8BA166798DC}|TriangulationApp.csproj|C:\\Users\\Notebook\\Desktop\\Project\\Triangulation\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{00507228-8D95-4AAB-9396-D8BA166798DC}|TriangulationApp.csproj|solutionrelative:app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     }
@@ -22,11 +30,35 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "App.config",
+              "DocumentMoniker": "C:\\Users\\Notebook\\Desktop\\Project\\Triangulation\\App.config",
+              "RelativeDocumentMoniker": "App.config",
+              "ToolTip": "C:\\Users\\Notebook\\Desktop\\Project\\Triangulation\\App.config",
+              "RelativeToolTip": "App.config",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
+              "WhenOpened": "2025-01-23T16:31:28.321Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "App.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\Notebook\\Desktop\\Project\\Triangulation\\App.xaml.cs",
+              "RelativeDocumentMoniker": "App.xaml.cs",
+              "ToolTip": "C:\\Users\\Notebook\\Desktop\\Project\\Triangulation\\App.xaml.cs",
+              "RelativeToolTip": "App.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-23T16:31:25.477Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "App.xaml",
               "DocumentMoniker": "C:\\Users\\Notebook\\Desktop\\Project\\Triangulation\\App.xaml",
               "RelativeDocumentMoniker": "App.xaml",
@@ -54,9 +86,9 @@
               "Title": "MainWindow.xaml.cs",
               "DocumentMoniker": "C:\\Users\\Notebook\\Desktop\\Project\\Triangulation\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "MainWindow.xaml.cs",
-              "ToolTip": "C:\\Users\\Notebook\\Desktop\\Project\\Triangulation\\MainWindow.xaml.cs",
-              "RelativeToolTip": "MainWindow.xaml.cs",
-              "ViewState": "AgIAAMcAAAAAAAAAAAAlwNgAAAAJAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\Notebook\\Desktop\\Project\\Triangulation\\MainWindow.xaml.cs*",
+              "RelativeToolTip": "MainWindow.xaml.cs*",
+              "ViewState": "AgIAAHwAAAAAAAAAAAAwwBYAAABZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-15T07:15:19.059Z",
               "EditorCaption": ""
