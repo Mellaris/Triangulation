@@ -15,10 +15,8 @@ using System.Windows.Shapes;
 
 namespace TriangulationApp
 {
-
     public partial class MainWindow : Window
     {
-        // Список станций
         private List<(Ellipse Circle, Ellipse Center, double Radius)> stations = new List<(Ellipse, Ellipse, double)>();
         private Ellipse redPoint;
         private Ellipse draggedPoint = null;
@@ -29,37 +27,22 @@ namespace TriangulationApp
         {
             InitializeComponent();
             redPoint = RedPoint;
-            if (redPoint == null)
-            {
-                MessageBox.Show("Красная точка не инициализирована.");
-                return;
-            }
-            AddStationButton.Click += AddStation;
         }
 
-        // Добавление новой станции
         private void AddStation(object sender, RoutedEventArgs e)
         {
-            // Генерация случайных данных для новой станции
             double x = new Random().Next(100, 500);
             double y = new Random().Next(100, 500);
             double r = new Random().Next(100, 200);
 
-            // Создание круга и центра станции
             Ellipse circle = DrawCircle(x, y, r);
             Ellipse center = DrawCenterPoint(x, y);
 
-            // Добавление станции в список
             stations.Add((circle, center, r));
 
-            // Если станций 3 или больше, рассчитываем пересечение
-            if (stations.Count >= 3)
-            {
-                CalculateIntersection();
-            }
+            CalculateIntersection();
         }
 
-        // Рисование круга (станции)
         private Ellipse DrawCircle(double x, double y, double radius)
         {
             Ellipse circle = new Ellipse
@@ -78,7 +61,6 @@ namespace TriangulationApp
             return circle;
         }
 
-        // Рисование центра станции
         private Ellipse DrawCenterPoint(double x, double y)
         {
             Ellipse centerPoint = new Ellipse
@@ -96,120 +78,44 @@ namespace TriangulationApp
             return centerPoint;
         }
 
-        // Расчёт пересечения (если 3 и более станции)
-        private void CalculateIntersection()
-        {
-            if (stations.Count < 3) return;
-
-            var station1 = stations[0];
-            var station2 = stations[1];
-            var station3 = stations[2];
-
-            double redX = Canvas.GetLeft(redPoint) + redPoint.Width / 2;
-            double redY = Canvas.GetTop(redPoint) + redPoint.Height / 2;
-
-            bool isInside = IsPointInsideThreeCircles(
-                redX, redY,
-                station1.Circle, station1.Radius,
-                station2.Circle, station2.Radius,
-                station3.Circle, station3.Radius
-            );
-
-            // Обновление информации о точке
-            if (isInside)
-            {
-                ErrorDisplay.Text = "Красная точка внутри пересечения.";
-                CalculateSignalStrength(redX, redY);  // Рассчитываем силу сигнала
-            }
-            else
-            {
-                ErrorDisplay.Text = "Красная точка не в зоне пересечения.";
-                SignalStrengthDisplay.Text = "Сила сигнала: Н/Д";
-            }
-
-            UpdateCoordinatesDisplay(redX, redY);
-        }
-
-
-        // Проверка, находится ли точка внутри трёх кругов
-        private bool IsPointInsideThreeCircles(
-            double px, double py,
-            Ellipse circle1, double r1,
-            Ellipse circle2, double r2,
-            Ellipse circle3, double r3)
-        {
-            double x1 = Canvas.GetLeft(circle1) + r1;
-            double y1 = Canvas.GetTop(circle1) + r1;
-
-            double x2 = Canvas.GetLeft(circle2) + r2;
-            double y2 = Canvas.GetTop(circle2) + r2;
-
-            double x3 = Canvas.GetLeft(circle3) + r3;
-            double y3 = Canvas.GetTop(circle3) + r3;
-
-            return IsPointInsideCircle(px, py, x1, y1, r1) &&
-                   IsPointInsideCircle(px, py, x2, y2, r2) &&
-                   IsPointInsideCircle(px, py, x3, y3, r3);
-        }
-
-        // Проверка, внутри ли точка круга
-        private bool IsPointInsideCircle(double px, double py, double cx, double cy, double r)
-        {
-            double distance = Math.Sqrt(Math.Pow(px - cx, 2) + Math.Pow(py - cy, 2));
-            return distance <= r;
-        }
-
-        // Обновление отображения координат
-        private void UpdateCoordinatesDisplay(double redX, double redY)
-        {
-            CoordinatesDisplay.Text = $"Координаты: Красная ({redX:F2}, {redY:F2})";
-        }
-
-        // Вычисление силы сигнала
-        private void CalculateSignalStrength(double redX, double redY)
-        {
-            double totalSignalStrength = 0;
-            double maxSignalStrength = 0;
-
-            foreach (var station in stations)
-            {
-                double centerX = Canvas.GetLeft(station.Center) + 5;  // Центр чёрной точки
-                double centerY = Canvas.GetTop(station.Center) + 5;
-
-                // Расстояние между красной точкой и центром станции
-                double distance = Math.Sqrt(Math.Pow(redX - centerX, 2) + Math.Pow(redY - centerY, 2));
-
-                // Сила сигнала: инвертированное расстояние
-                double signalStrength = Math.Max(0, (station.Radius - distance) / station.Radius);
-
-                totalSignalStrength += signalStrength;
-                maxSignalStrength = Math.Max(maxSignalStrength, signalStrength);
-            }
-
-            SignalStrengthDisplay.Text = $"Сила сигнала: {totalSignalStrength:F2} (Макс. сила: {maxSignalStrength:F2})";
-        }
-
-        // Обработчик события нажатия на станцию
         private void Station_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            StartDragging(sender as Ellipse, e);
+            if (sender is Ellipse station)
+            {
+                isDragging = true;
+                draggedPoint = station;
+
+                // Сохраняем начальную позицию мыши относительно элемента
+                Point mousePosition = e.GetPosition(MainCanvas);
+                double left = Canvas.GetLeft(station);
+                double top = Canvas.GetTop(station);
+
+                // Рассчитываем смещение
+                dragStartOffset = new Point(mousePosition.X - left, mousePosition.Y - top);
+
+                station.CaptureMouse();
+            }
         }
 
-        // Начало перетаскивания
-        private void StartDragging(Ellipse point, MouseButtonEventArgs e)
+        private void RedPoint_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (point == null) return;
+            if (sender is Ellipse redPoint)
+            {
+                isDragging = true;
+                draggedPoint = redPoint;
 
-            draggedPoint = point;
-            isDragging = true;
-            dragStartOffset = e.GetPosition(MainCanvas);
-            dragStartOffset.X -= Canvas.GetLeft(point);
-            dragStartOffset.Y -= Canvas.GetTop(point);
+                // Сохраняем начальную позицию мыши относительно элемента
+                Point mousePosition = e.GetPosition(MainCanvas);
+                double left = Canvas.GetLeft(redPoint);
+                double top = Canvas.GetTop(redPoint);
 
-            Mouse.Capture(point);
+                // Рассчитываем смещение
+                dragStartOffset = new Point(mousePosition.X - left, mousePosition.Y - top);
+
+                redPoint.CaptureMouse();
+            }
         }
 
-        // Обработчик движения мыши
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
             if (!isDragging || draggedPoint == null) return;
@@ -218,38 +124,128 @@ namespace TriangulationApp
             double newX = mousePosition.X - dragStartOffset.X;
             double newY = mousePosition.Y - dragStartOffset.Y;
 
-            if (draggedPoint == redPoint)
+            if (draggedPoint.Tag?.ToString() == "Center")
             {
-                Canvas.SetLeft(draggedPoint, newX);
-                Canvas.SetTop(draggedPoint, newY);
-                CalculateIntersection();
-            }
-            else
-            {
-                // Перемещение центра круга
-                Ellipse circle = stations.Find(s => s.Center == draggedPoint).Circle;
-                double radius = stations.Find(s => s.Center == draggedPoint).Radius;
+                // Если перетаскиваем черную точку (центр окружности)
+                var station = stations.FirstOrDefault(s => s.Center == draggedPoint);
+                if (station != null)
+                {
+                    // Двигаем центр окружности
+                    Canvas.SetLeft(station.Center, newX);
+                    Canvas.SetTop(station.Center, newY);
 
-                Canvas.SetLeft(draggedPoint, newX);
-                Canvas.SetTop(draggedPoint, newY);
-                Canvas.SetLeft(circle, newX - radius);
-                Canvas.SetTop(circle, newY - radius);
+                    // Двигаем окружность (радиус)
+                    Canvas.SetLeft(station.Circle, newX - station.Radius);
+                    Canvas.SetTop(station.Circle, newY - station.Radius);
+                }
+            }
+            else if (draggedPoint == redPoint)
+            {
+                // Если перетаскиваем красную точку
+                Canvas.SetLeft(redPoint, newX);
+                Canvas.SetTop(redPoint, newY);
             }
         }
 
 
-        // Обработчик события отпускания кнопки мыши
         private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             isDragging = false;
             draggedPoint = null;
             Mouse.Capture(null);
+
+            // После завершения перетаскивания проверяем пересечение и выполняем расчет
+            if (stations.Count >= 3 && draggedPoint == redPoint)
+            {
+                CalculateRedPointPosition();
+            }
         }
 
-        // Обработчик нажатия на красную точку
-        private void RedPoint_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+
+        private void CalculateIntersection()
         {
-            StartDragging(sender as Ellipse, e);
+            if (stations.Count < 3) return;
+            var station1 = stations[0];
+            var station2 = stations[1];
+            var station3 = stations[2];
+
+            double x1 = Canvas.GetLeft(station1.Center) + 5;
+            double y1 = Canvas.GetTop(station1.Center) + 5;
+
+            double x2 = Canvas.GetLeft(station2.Center) + 5;
+            double y2 = Canvas.GetTop(station2.Center) + 5;
+
+            double x3 = Canvas.GetLeft(station3.Center) + 5;
+            double y3 = Canvas.GetTop(station3.Center) + 5;
+
+            double r1 = station1.Radius;
+            double r2 = station2.Radius;
+            double r3 = station3.Radius;
+
+            (double redX, double redY, bool isInside) = Triangulate(x1, y1, r1, x2, y2, r2, x3, y3, r3);
+
+            if (isInside)
+            {
+                Canvas.SetLeft(redPoint, redX - redPoint.Width / 2);
+                Canvas.SetTop(redPoint, redY - redPoint.Height / 2);
+
+                CalculateSignalStrength(redX, redY);
+                ErrorDisplay.Text = "Красная точка внутри пересечений.";
+            }
+            else
+            {
+                ErrorDisplay.Text = "Красная точка вне зоны пересечений.";
+            }
+        }
+
+        private (double, double, bool) Triangulate(double x1, double y1, double r1, double x2, double y2, double r2, double x3, double y3, double r3)
+        {
+            double A = 2 * (x2 - x1);
+            double B = 2 * (y2 - y1);
+            double C = r1 * r1 - r2 * r2 - x1 * x1 - y1 * y1 + x2 * x2 + y2 * y2;
+
+            double D = 2 * (x3 - x1);
+            double E = 2 * (y3 - y1);
+            double F = r1 * r1 - r3 * r3 - x1 * x1 - y1 * y1 + x3 * x3 + y3 * y3;
+
+            double det = A * E - B * D;
+            if (Math.Abs(det) < 1e-6)
+            {
+                return (0, 0, false);
+            }
+
+            double x = (C * E - B * F) / det;
+            double y = (A * F - C * D) / det;
+
+            bool isInside = IsPointInsideCircle(x, y, x1, y1, r1) &&
+                            IsPointInsideCircle(x, y, x2, y2, r2) &&
+                            IsPointInsideCircle(x, y, x3, y3, r3);
+
+            return (x, y, isInside);
+        }
+
+        private bool IsPointInsideCircle(double px, double py, double cx, double cy, double r)
+        {
+            double distance = Math.Sqrt(Math.Pow(px - cx, 2) + Math.Pow(py - cy, 2));
+            return distance <= r;
+        }
+
+        private void CalculateSignalStrength(double redX, double redY)
+        {
+            double[] strengths = new double[3];
+
+            for (int i = 0; i < stations.Count; i++)
+            {
+                var station = stations[i];
+                double centerX = Canvas.GetLeft(station.Center) + 5;
+                double centerY = Canvas.GetTop(station.Center) + 5;
+                double distance = Math.Sqrt(Math.Pow(redX - centerX, 2) + Math.Pow(redY - centerY, 2));
+                strengths[i] = Math.Max(0, (station.Radius - distance) / station.Radius);
+            }
+
+            SignalStrengthDisplay1.Text = $"Сигнал станции 1: {strengths[0]:F2}";
+            SignalStrengthDisplay2.Text = $"Сигнал станции 2: {strengths[1]:F2}";
+            SignalStrengthDisplay3.Text = $"Сигнал станции 3: {strengths[2]:F2}";
         }
     }
 }

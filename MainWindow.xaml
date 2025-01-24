@@ -14,7 +14,9 @@
         <StackPanel VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10">
             <Button Name="AddStationButton" Content="Добавить станцию" Width="150" Height="30" Click="AddStation"/>
             <TextBlock Name="CoordinatesDisplay" Text="Координаты: Красная (0, 0)" Margin="10" />
-            <TextBlock Name="SignalStrengthDisplay" Text="Сила сигнала: Н/Д" Margin="10" />
+            <TextBlock Name="SignalStrengthDisplay1" Text="Сигнал станции 1: Н/Д" Margin="5" />
+            <TextBlock Name="SignalStrengthDisplay2" Text="Сигнал станции 2: Н/Д" Margin="5" />
+            <TextBlock Name="SignalStrengthDisplay3" Text="Сигнал станции 3: Н/Д" Margin="5" />
             <TextBlock Name="ErrorDisplay" Text="Ошибка: Нет ошибок" Foreground="Red" Margin="10"/>
         </StackPanel>
     </Grid>
