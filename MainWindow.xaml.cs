@@ -20,149 +20,177 @@ namespace TriangulationApp
     /// </summary>
     public partial class MainWindow : Window
     {
-        private List<(Ellipse tower, Ellipse radius, double radiusValue)> towers = new();
-        private bool isDragging;
-        private UIElement draggedElement;
-        private Point mouseOffset;
+        private List<Ellipse> circles = new List<Ellipse>();
+        private List<(double X, double Y, double R)> stations = new List<(double X, double Y, double R)>();
+        private Ellipse redPoint;
+        private Ellipse draggedPoint = null;
+        private bool isDragging = false;
+        private Point dragStartOffset;
 
         public MainWindow()
         {
             InitializeComponent();
-            InitializeEvents();
+            InitializeScene();
         }
 
-        private void InitializeEvents()
+        private void InitializeScene()
         {
-            // События для перетаскивания красной точки
-            ObjectPoint.MouseDown += StartDrag;
-            MouseMove += Dragging;
-            MouseUp += EndDrag;
+            redPoint = RedPoint;
+            AddStationButton.Click += AddStation;
         }
 
-        private void StartDrag(object sender, MouseButtonEventArgs e)
+        private void AddStation(object sender, RoutedEventArgs e)
         {
-            isDragging = true;
-            draggedElement = sender as UIElement;
-            mouseOffset = e.GetPosition(this);
-        }
+            // Создание новой станции
+            double x = new Random().Next(100, 500);
+            double y = new Random().Next(100, 500);
+            double r = new Random().Next(100, 200);
 
-        private void Dragging(object sender, MouseEventArgs e)
-        {
-            if (isDragging && draggedElement != null)
+            Ellipse circle = DrawCircle(x, y, r);
+            Ellipse centerPoint = DrawCenterPoint(x, y);
+
+            circles.Add(circle);
+            stations.Add((x, y, r));
+
+            if (stations.Count >= 3)
             {
-                var pos = e.GetPosition(this);
-                double offsetX = pos.X - mouseOffset.X;
-                double offsetY = pos.Y - mouseOffset.Y;
-
-                Canvas.SetLeft(draggedElement, Canvas.GetLeft(draggedElement) + offsetX);
-                Canvas.SetTop(draggedElement, Canvas.GetTop(draggedElement) + offsetY);
-
-                mouseOffset = pos;
-                UpdateObjectCoordinates();
+                CalculateIntersection();
             }
         }
 
-        private void EndDrag(object sender, MouseButtonEventArgs e)
+        private Ellipse DrawCircle(double x, double y, double radius)
+        {
+            Ellipse circle = new Ellipse
+            {
+                Width = radius * 2,
+                Height = radius * 2,
+                Stroke = Brushes.Black,
+                StrokeThickness = 1,
+                Tag = "Circle"
+            };
+
+            Canvas.SetLeft(circle, x - radius);
+            Canvas.SetTop(circle, y - radius);
+            circle.MouseLeftButtonDown += Station_MouseLeftButtonDown;
+            MainCanvas.Children.Add(circle);
+            return circle;
+        }
+
+        private Ellipse DrawCenterPoint(double x, double y)
+        {
+            Ellipse centerPoint = new Ellipse
+            {
+                Width = 10,
+                Height = 10,
+                Fill = Brushes.Black
+            };
+
+            Canvas.SetLeft(centerPoint, x - 5);
+            Canvas.SetTop(centerPoint, y - 5);
+            MainCanvas.Children.Add(centerPoint);
+
+            return centerPoint;
+        }
+
+        private void CalculateIntersection()
+        {
+            if (stations.Count < 3) return;
+
+            var station1 = stations[0];
+            var station2 = stations[1];
+            var station3 = stations[2];
+
+            var intersection = GetIntersectionPoint(station1.X, station1.Y, station1.R,
+                                                     station2.X, station2.Y, station2.R,
+                                                     station3.X, station3.Y, station3.R);
+
+            if (intersection == null)
+            {
+                ErrorDisplay.Text = "Красная точка не в зоне пересечения.";
+                return;
+            }
+
+            double redX = intersection.Value.X;
+            double redY = intersection.Value.Y;
+
+            UpdateCoordinatesDisplay(redX, redY);
+            ErrorDisplay.Text = "Ошибок нет.";
+        }
+
+        private (double X, double Y)? GetIntersectionPoint(
+            double x1, double y1, double r1,
+            double x2, double y2, double r2,
+            double x3, double y3, double r3)
+        {
+            double a = 2 * (x2 - x1);
+            double b = 2 * (y2 - y1);
+            double c = Math.Pow(r1, 2) - Math.Pow(r2, 2) - Math.Pow(x1, 2) + Math.Pow(x2, 2) - Math.Pow(y1, 2) + Math.Pow(y2, 2);
+
+            double d = 2 * (x3 - x2);
+            double e = 2 * (y3 - y2);
+            double f = Math.Pow(r2, 2) - Math.Pow(r3, 2) - Math.Pow(x2, 2) + Math.Pow(x3, 2) - Math.Pow(y2, 2) + Math.Pow(y3, 2);
+
+            double determinant = a * e - b * d;
+            if (Math.Abs(determinant) < 1e-6) return null;
+
+            double px = (c * e - b * f) / determinant;
+            double py = (a * f - c * d) / determinant;
+
+            return (px, py);
+        }
+
+        private void UpdateCoordinatesDisplay(double redX, double redY)
+        {
+            CoordinatesDisplay.Text = $"Координаты: Красная ({redX:F2}, {redY:F2})";
+            for (int i = 0; i < stations.Count; i++)
+            {
+                CoordinatesDisplay.Text += $", Станция {i + 1} ({stations[i].X:F2}, {stations[i].Y:F2})";
+            }
+        }
+
+        private void RedPoint_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            StartDragging(sender as Ellipse, e);
+        }
+
+        private void Station_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            StartDragging(sender as Ellipse, e);
+        }
+
+        private void StartDragging(Ellipse point, MouseButtonEventArgs e)
+        {
+            if (point == null) return;
+
+            draggedPoint = point;
+            isDragging = true;
+
+            dragStartOffset = e.GetPosition(MainCanvas);
+            dragStartOffset.X -= Canvas.GetLeft(point);
+            dragStartOffset.Y -= Canvas.GetTop(point);
+
+            Mouse.Capture(point);
+        }
+
+        private void Canvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!isDragging || draggedPoint == null) return;
+
+            Point mousePosition = e.GetPosition(MainCanvas);
+            Canvas.SetLeft(draggedPoint, mousePosition.X - dragStartOffset.X);
+            Canvas.SetTop(draggedPoint, mousePosition.Y - dragStartOffset.Y);
+
+            if (draggedPoint == redPoint)
+            {
+                CalculateIntersection();
+            }
+        }
+
+        private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             isDragging = false;
-            draggedElement = null;
-        }
-
-        private void AddTowerButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Добавление новой вышки
-            var tower = new Ellipse { Width = 20, Height = 20, Fill = Brushes.Black };
-            var radius = new Ellipse { Stroke = Brushes.Black, StrokeThickness = 1 };
-            double defaultRadius = 100;
-
-            towers.Add((tower, radius, defaultRadius));
-
-            // Расположение новой вышки
-            Canvas.SetLeft(tower, 100 + towers.Count * 50);
-            Canvas.SetTop(tower, 100 + towers.Count * 50);
-            Canvas.SetLeft(radius, 100 + towers.Count * 50 - defaultRadius);
-            Canvas.SetTop(radius, 100 + towers.Count * 50 - defaultRadius);
-            radius.Width = defaultRadius * 2;
-            radius.Height = defaultRadius * 2;
-
-            tower.MouseDown += StartDrag;
-            MainCanvas.Children.Add(radius);
-            MainCanvas.Children.Add(tower);
-        }
-
-        private void UpdateObjectCoordinates()
-        {
-            // Координаты красной точки
-            double objectX = Canvas.GetLeft(ObjectPoint) + ObjectPoint.Width / 2;
-            double objectY = Canvas.GetTop(ObjectPoint) + ObjectPoint.Height / 2;
-
-            // Находим пересечение радиусов
-            var intersectingTowers = towers
-                .Where(t => IsPointInsideCircle(
-                    objectX,
-                    objectY,
-                    Canvas.GetLeft(t.tower) + t.tower.Width / 2,
-                    Canvas.GetTop(t.tower) + t.tower.Height / 2,
-                    t.radiusValue))
-                .ToList();
-
-            if (intersectingTowers.Count >= 3)
-            {
-                var coords = CalculateTrilateration(
-                    GetTowerData(intersectingTowers[0]),
-                    GetTowerData(intersectingTowers[1]),
-                    GetTowerData(intersectingTowers[2]));
-
-                if (coords != null)
-                {
-                    CoordinatesMenu.Header = $"Координаты объекта: ({coords.Value.x:F2}, {coords.Value.y:F2})";
-                }
-                else
-                {
-                    CoordinatesMenu.Header = "Координаты объекта: Невозможно определить";
-                }
-            }
-            else
-            {
-                CoordinatesMenu.Header = "Координаты объекта: Невозможно определить";
-            }
-        }
-
-        private (double x, double y, double r) GetTowerData((Ellipse tower, Ellipse radius, double radiusValue) tower)
-        {
-            double x = Canvas.GetLeft(tower.tower) + tower.tower.Width / 2;
-            double y = Canvas.GetTop(tower.tower) + tower.tower.Height / 2;
-            double r = tower.radiusValue;
-            return (x, y, r);
-        }
-
-        private bool IsPointInsideCircle(double px, double py, double cx, double cy, double r)
-        {
-            return Math.Pow(px - cx, 2) + Math.Pow(py - cy, 2) <= Math.Pow(r, 2);
-        }
-
-        private (double x, double y)? CalculateTrilateration(
-            (double x, double y, double r) s1,
-            (double x, double y, double r) s2,
-            (double x, double y, double r) s3)
-        {
-            // Формулы триангуляции
-            double A = 2 * (s2.x - s1.x);
-            double B = 2 * (s2.y - s1.y);
-            double C = Math.Pow(s1.r, 2) - Math.Pow(s2.r, 2) - Math.Pow(s1.x, 2) + Math.Pow(s2.x, 2) - Math.Pow(s1.y, 2) + Math.Pow(s2.y, 2);
-
-            double D = 2 * (s3.x - s2.x);
-            double E = 2 * (s3.y - s2.y);
-            double F = Math.Pow(s2.r, 2) - Math.Pow(s3.r, 2) - Math.Pow(s2.x, 2) + Math.Pow(s3.x, 2) - Math.Pow(s2.y, 2) + Math.Pow(s3.y, 2);
-
-            double denominator = A * E - B * D;
-
-            if (Math.Abs(denominator) < 1e-6) return null;
-
-            double x = (C * E - B * F) / denominator;
-            double y = (A * F - C * D) / denominator;
-
-            return (x, y);
+            draggedPoint = null;
+            Mouse.Capture(null);
         }
     }
 }
