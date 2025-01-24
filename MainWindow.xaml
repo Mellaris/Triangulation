@@ -7,21 +7,15 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800" >
     <Grid>
-        <!-- Поле для отображения объектов -->
-        <Canvas Name="MainCanvas" Background="White" Margin="10" MouseMove="Canvas_MouseMove" MouseLeftButtonUp="Canvas_MouseLeftButtonUp">
-            <!-- Красная точка -->
-            <Ellipse Name="RedPoint" Width="15" Height="15" Fill="Red" Canvas.Left="200" Canvas.Top="200"
-                  MouseLeftButtonDown="RedPoint_MouseLeftButtonDown"/>
+        <Canvas Name="MainCanvas" Background="White" MouseMove="Canvas_MouseMove" MouseLeftButtonUp="Canvas_MouseLeftButtonUp">
+            <Ellipse Name="RedPoint" Width="20" Height="20" Fill="Red" Canvas.Left="100" Canvas.Top="100" MouseLeftButtonDown="RedPoint_MouseLeftButtonDown"/>
         </Canvas>
 
-        <!-- Панель управления -->
-        <StackPanel VerticalAlignment="Bottom" Orientation="Horizontal" Background="LightGray" Height="150">
-            <Button Name="AddStationButton" Content="Добавить станцию" Width="150" Margin="10"/>
-            <TextBlock Name="SignalStrength1" Text="Станция 1: 0%" Margin="10"/>
-            <TextBlock Name="SignalStrength2" Text="Станция 2: 0%" Margin="10"/>
-            <TextBlock Name="SignalStrength3" Text="Станция 3: 0%" Margin="10"/>
-            <TextBlock Name="CoordinatesDisplay" Text="Координаты: " Margin="10"/>
-            <TextBlock Name="ErrorDisplay" Text="Ошибок нет" Margin="10" Foreground="Red"/>
+        <StackPanel VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10">
+            <Button Name="AddStationButton" Content="Добавить станцию" Width="150" Height="30" Click="AddStation"/>
+            <TextBlock Name="CoordinatesDisplay" Text="Координаты: Красная (0, 0)" Margin="10" />
+            <TextBlock Name="SignalStrengthDisplay" Text="Сила сигнала: Н/Д" Margin="10" />
+            <TextBlock Name="ErrorDisplay" Text="Ошибка: Нет ошибок" Foreground="Red" Margin="10"/>
         </StackPanel>
     </Grid>
 </Window>
