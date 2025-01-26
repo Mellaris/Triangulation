@@ -150,6 +150,7 @@ namespace TriangulationApp
             if (stations.Count < 3)
             {
                 IntersectionStatus.Text = "Недостаточно станций для расчёта пересечений.";
+                SignalStrength1.Text = SignalStrength2.Text = SignalStrength3.Text = "";
                 return;
             }
 
@@ -169,16 +170,34 @@ namespace TriangulationApp
             double y3 = Canvas.GetTop(station3.Center) + 5;
             double r3 = station3.Radius;
 
-            if (CheckTriangulation(x1, y1, r1, x2, y2, r2, x3, y3, r3, out double redX, out double redY))
-            {
-                Canvas.SetLeft(redPoint, redX - redPoint.Width / 2);
-                Canvas.SetTop(redPoint, redY - redPoint.Height / 2);
+            // Координаты текущей позиции красной точки
+            double redX = Canvas.GetLeft(redPoint) + redPoint.Width / 2;
+            double redY = Canvas.GetTop(redPoint) + redPoint.Height / 2;
 
-                IntersectionStatus.Text = $"Пересечение найдено. ({redX:F2}, {redY:F2})";
+            // Проверяем, находится ли красная точка внутри пересечений
+            bool isInside = IsPointInsideCircle(redX, redY, x1, y1, r1) &&
+                            IsPointInsideCircle(redX, redY, x2, y2, r2) &&
+                            IsPointInsideCircle(redX, redY, x3, y3, r3);
+
+            if (isInside)
+            {
+                // Если точка внутри, считаем её координаты
+                if (CheckTriangulation(x1, y1, r1, x2, y2, r2, x3, y3, r3, out double calculatedX, out double calculatedY))
+                {
+                    IntersectionStatus.Text = $"Пересечение найдено. ({calculatedX:F2}, {calculatedY:F2})";
+                    UpdateSignalStrengths(x1, y1, r1, x2, y2, r2, x3, y3, r3);
+                }
+                else
+                {
+                    // Если триангуляция не может быть выполнена
+                    IntersectionStatus.Text = "Ошибка при расчёте пересечения.";
+                }
             }
             else
             {
-                IntersectionStatus.Text = "Пересечения нет.";
+                // Если точка вне пересечений, обнуляем данные
+                IntersectionStatus.Text = "Красная точка вне пересечений.";
+                SignalStrength1.Text = SignalStrength2.Text = SignalStrength3.Text = "";
             }
         }
 
