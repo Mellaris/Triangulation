@@ -17,33 +17,34 @@ namespace TriangulationApp
 {
     public partial class MainWindow : Window
     {
-        private List<(Ellipse Circle, Ellipse Center, double Radius)> stations = new List<(Ellipse, Ellipse, double)>();
-        private Ellipse redPoint;
-        private Ellipse draggedPoint = null;
-        private bool isDragging = false;
-        private Point dragStartOffset;
+        // Список станций: каждая станция представлена кругом (радиус), центром, радиусом, координатами x и y
+        private List<(Ellipse Circle, Ellipse Center, double Radius, double X, double Y)> stations = new List<(Ellipse, Ellipse, double, double, double)>();
+        private Ellipse redPoint; // Красная точка
+        private Ellipse draggedPoint = null; 
+        private bool isDragging = false; 
+        private Point dragStartOffset; 
+        private List<Line> triangleLines = new List<Line>(); // Линии треугольника
 
         public MainWindow()
         {
             InitializeComponent();
-            redPoint = RedPoint;
-            Canvas.SetLeft(redPoint, 300);
+            redPoint = RedPoint; // Установка красной точки из разметки XAML
+            Canvas.SetLeft(redPoint, 300); // Задаем начальное положение красной точки
             Canvas.SetTop(redPoint, 300);
         }
-
+        // Добавление новой станции
         private void AddStation(object sender, RoutedEventArgs e)
         {
             double x = new Random().Next(100, 500);
             double y = new Random().Next(100, 500);
             double r = new Random().Next(100, 200);
-
             Ellipse circle = DrawCircle(x, y, r);
             Ellipse center = DrawCenterPoint(x, y);
-
-            stations.Add((circle, center, r));
+            stations.Add((circle, center, r, x, y));
+            // Пересчитываем пересечения
             CalculateIntersection();
         }
-
+        // Создает круг станции
         private Ellipse DrawCircle(double x, double y, double radius)
         {
             Ellipse circle = new Ellipse
@@ -53,12 +54,12 @@ namespace TriangulationApp
                 Stroke = Brushes.Black,
                 StrokeThickness = 1
             };
-            Canvas.SetLeft(circle, x - radius);
-            Canvas.SetTop(circle, y - radius);
-            MainCanvas.Children.Add(circle);
+            Canvas.SetLeft(circle, x - radius); // Устанавливаем левый отступ
+            Canvas.SetTop(circle, y - radius); // Устанавливаем верхний отступ
+            MainCanvas.Children.Add(circle); // Добавляем круг 
             return circle;
         }
-
+        // Создает точку центра станции
         private Ellipse DrawCenterPoint(double x, double y)
         {
             Ellipse centerPoint = new Ellipse
@@ -66,29 +67,68 @@ namespace TriangulationApp
                 Width = 10,
                 Height = 10,
                 Fill = Brushes.Black,
-                Tag = "Station"
+                Tag = "Station" // Устанавливаем тег для идентификации станций
             };
             Canvas.SetLeft(centerPoint, x - 5);
             Canvas.SetTop(centerPoint, y - 5);
+            // Добавляем обработчик события нажатия
             centerPoint.MouseLeftButtonDown += Station_MouseLeftButtonDown;
-            MainCanvas.Children.Add(centerPoint);
+            MainCanvas.Children.Add(centerPoint); // Добавляем точку
             return centerPoint;
         }
-
-        private void Station_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        // Обработчик начала перетаскивания станции
+        private void Station_MouseLeftButtonDown(object stationSender, MouseButtonEventArgs mouseEventArgs)
         {
-            if (sender is Ellipse station)
+            if (stationSender is Ellipse station)
             {
                 isDragging = true;
                 draggedPoint = station;
-                Point mousePosition = e.GetPosition(MainCanvas);
+                Point mousePosition = mouseEventArgs.GetPosition(MainCanvas);
                 double left = Canvas.GetLeft(station);
                 double top = Canvas.GetTop(station);
                 dragStartOffset = new Point(mousePosition.X - left, mousePosition.Y - top);
                 station.CaptureMouse();
+
+                if (station.Name != "RedPoint")
+                {
+                    var selectedStation = stations.FirstOrDefault(s => s.X == left + 5 && s.Y == top + 5);
+                    int id = stations.IndexOf(selectedStation);
+                    TextBox radiusTextBox = new TextBox
+                    {
+                        Text = selectedStation.Radius.ToString(),
+                        Width = 100,
+                        Height = 25,
+                        Margin = new Thickness(10)
+                    };
+
+                    // Кнопка "Применить изменения"
+                    Button applyButton = new Button
+                    {
+                        Content = "Применить",
+                        Width = 100,
+                        Height = 30,
+                        Margin = new Thickness(10)
+                    };
+
+                    // Добавляем обработчик нажатия кнопки
+                    applyButton.Click += (sender, e) => ApplyRadiusChange(stations[id], radiusTextBox);
+
+                    // Создаём панель для размещения
+                    StackPanel panel = new StackPanel
+                    {
+                        Children = { radiusTextBox, applyButton }
+                    };
+
+                    // Задаём позицию панели в углу экрана
+                    Canvas.SetLeft(panel, 10); // Отступ от левого края
+                    Canvas.SetTop(panel, 10);  // Отступ от верхнего края
+
+                    
+                    MainCanvas.Children.Add(panel);
+                }
             }
         }
-
+        // Обработчик начала перетаскивания красной точки
         private void RedPoint_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is Ellipse redPoint)
@@ -118,6 +158,7 @@ namespace TriangulationApp
             {
                 UpdateStationPosition(draggedPoint);
                 CalculateIntersection();
+                UpdateTriangle();
             }
         }
         private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -132,16 +173,25 @@ namespace TriangulationApp
 
         private void UpdateStationPosition(Ellipse station)
         {
-            foreach (var (circle, center, radius) in stations)
+            int stationFromListID = 0;
+            foreach (var (circle, center, radius, x, y) in stations)
             {
                 if (center == station)
                 {
+                    stationFromListID = stations.IndexOf((circle, center, radius, x, y));
                     double centerX = Canvas.GetLeft(station) + 5;
                     double centerY = Canvas.GetTop(station) + 5;
                     Canvas.SetLeft(circle, centerX - radius);
                     Canvas.SetTop(circle, centerY - radius);
                     break;
                 }
+            }
+            if (station.Name != "RedPoint")
+            {
+                var stationFromList = stations[stationFromListID];
+                stationFromList.X = Canvas.GetLeft(station) + 5;
+                stationFromList.Y = Canvas.GetTop(station) + 5;
+                stations[stationFromListID] = stationFromList;
             }
         }
 
@@ -230,7 +280,7 @@ namespace TriangulationApp
             return IsPointInsideCircle(redX, redY, x1, y1, r1)
                 && IsPointInsideCircle(redX, redY, x2, y2, r2)
                 && IsPointInsideCircle(redX, redY, x3, y3, r3);
-            
+
         }
         private void UpdateSignalStrengths(
            double x1, double y1, double r1,
@@ -252,6 +302,81 @@ namespace TriangulationApp
         {
             double distance = Math.Sqrt(Math.Pow(px - cx, 2) + Math.Pow(py - cy, 2));
             return distance <= radius;
+        }
+        private void ApplyRadiusChange((Ellipse Circle, Ellipse Center, double Radius, double X, double Y) station, TextBox radiusTextBox)
+        {
+            // Проверяем, что введено число
+            if (double.TryParse(radiusTextBox.Text, out double newRadius) && newRadius > 0)
+            {
+                // Обновляем радиус в списке станций
+                int id = stations.IndexOf(station);
+                station.Radius = newRadius;
+                stations[id] = station;
+
+                // Обновляем отображение круга радиуса
+                UpdateRadiusCircle(stations[id]);
+            }
+            else
+            {
+                MessageBox.Show("Введите корректное значение радиуса");
+            }
+        }
+        private void UpdateRadiusCircle((Ellipse Circle, Ellipse Center, double Radius, double X, double Y) station)
+        {
+            // Находим круг, соответствующий станции
+            Ellipse radiusCircle = station.Circle;
+
+            // Обновляем размер круга
+            radiusCircle.Width = station.Radius * 2;
+            radiusCircle.Height = station.Radius * 2;
+
+            // Обновляем позицию круга
+            Canvas.SetLeft(radiusCircle, station.X - station.Radius);
+            Canvas.SetTop(radiusCircle, station.Y - station.Radius);
+            CalculateIntersection();
+        }
+        private List<(Ellipse Circle, Ellipse Center, double Radius, double X, double Y)> FindNearestStations()
+        {
+            double redX = Canvas.GetLeft(RedPoint) + RedPoint.Width / 2;
+            double redY = Canvas.GetTop(RedPoint) + RedPoint.Height / 2;
+
+            return stations
+                .OrderBy(s => Math.Sqrt(Math.Pow(s.X - redX, 2) + Math.Pow(s.Y - redY, 2)))
+                .Take(3)
+                .ToList();
+        }
+        private void UpdateTriangle()
+        {
+            // Удаляем старые линии
+            foreach (var line in triangleLines)
+            {
+                MainCanvas.Children.Remove(line);
+            }
+            triangleLines.Clear();
+
+            // Находим три ближайшие станции
+            var nearestStations = FindNearestStations();
+            if (nearestStations.Count < 3) return;
+
+            // Рисуем треугольник
+            for (int i = 0; i < 3; i++)
+            {
+                var startStation = nearestStations[i];
+                var endStation = nearestStations[(i + 1) % 3];
+
+                Line line = new Line
+                {
+                    X1 = startStation.X,
+                    Y1 = startStation.Y,
+                    X2 = endStation.X,
+                    Y2 = endStation.Y,
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 2
+                };
+
+                triangleLines.Add(line);
+                MainCanvas.Children.Add(line);
+            }
         }
     }
 }
