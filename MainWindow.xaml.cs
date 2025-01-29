@@ -32,6 +32,18 @@ namespace TriangulationApp
             Canvas.SetLeft(redPoint, 300); // Задаем начальное положение красной точки
             Canvas.SetTop(redPoint, 300);
         }
+
+        private Brush GetRandomBrush()
+        {
+            Random random = new Random();
+            byte r = (byte)random.Next(255);
+            byte g = (byte)random.Next(256);
+            byte b = (byte)random.Next(256);
+
+            return new SolidColorBrush(Color.FromRgb(r, g, b));
+
+        }
+
         // Добавление новой станции
         private void AddStation(object sender, RoutedEventArgs e)
         {
@@ -51,7 +63,7 @@ namespace TriangulationApp
             {
                 Width = radius * 2,
                 Height = radius * 2,
-                Stroke = Brushes.Black,
+                Stroke = GetRandomBrush(),
                 StrokeThickness = 1
             };
             Canvas.SetLeft(circle, x - radius); // Устанавливаем левый отступ
